@@ -54,23 +54,23 @@ void set_var_coolant_temp(uint8_t input_coolant_temp)
 }
 
 
-char* get_var_brake_bias_front()
+const char* get_var_brake_bias_front()
 {
     return brake_bias_front;
 }
 
-void set_var_brake_bias_front(char* input_brake_bias_front)
+void set_var_brake_bias_front(const char* input_brake_bias_front)
 {
     brake_bias_front = input_brake_bias_front;
 }
 
 
-char* get_var_brake_bias_rear()
+const char* get_var_brake_bias_rear()
 {
     return brake_bias_rear;
 }
 
-void set_var_brake_bias_rear(char* input_brake_bias_rear)
+void set_var_brake_bias_rear(const char* input_brake_bias_rear)
 {
     brake_bias_rear = input_brake_bias_rear;
 }

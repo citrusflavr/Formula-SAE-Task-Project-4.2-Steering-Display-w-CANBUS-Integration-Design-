@@ -23,8 +23,8 @@
 
 
 // Buffer Declaration and Definition
-#define BUFFER_LINES 40 
-static lv_color_t draw_buffer1[HORIZONTAL_RES * BUFFER_LINES];
+#define BUFFER_LINES 10 
+static lv_color_t draw_buffer1[8 + (HORIZONTAL_RES * BUFFER_LINES)];
 static lv_color_t draw_buffer2[HORIZONTAL_RES * BUFFER_LINES];
 
 
@@ -45,26 +45,26 @@ void display_flush(
     uint8_t*          pixel_map
 )
 {
-    uint32_t width  = lv_area_get_width(area);
-    uint32_t height = lv_area_get_height(area);
-
-    tft.startWrite();
-
-    tft.setAddrWindow(
-        area->x1,
-        area->y1,
-        width,
-        height
-    );
-
-    tft.pushPixels(
-        (uint16_t*)pixel_map,
-        width * height
-    );
-
-    tft.endWrite();
-    
-    lv_display_flush_ready(display);
+    //uint32_t width  = lv_area_get_width(area);
+    //uint32_t height = lv_area_get_height(area);
+//
+    //tft.startWrite();
+//
+    //tft.setAddrWindow(
+        //area->x1,
+        //area->y1,
+        //width,
+        //height
+    //);
+//
+    //tft.pushPixels(
+        //(uint16_t*)pixel_map,
+        //width * height
+    //);
+//
+    //tft.endWrite();
+    //
+    //lv_display_flush_ready(display);
     return;
 }
 
@@ -213,12 +213,19 @@ void setup()
 
     else
     {
-		    Serial.println("Driver install error");
+		Serial.println("Driver install error");
         hang_program();
         exit(-1);
     }
 
-    ESP_ERROR_CHECK(twai_start());
+    //ESP_ERROR_CHECK(twai_start());
+    if (twai_start() == ESP_OK)
+        Serial.println("TWAI Started Successfully");
+    else
+    {
+        Serial.println("TWAI Failed to Start");
+        exit(-1);
+    }
 
     tft.init();
     tft.setRotation (LANDSCAPE_MODE);
@@ -229,17 +236,27 @@ void setup()
     lv_tick_set_cb(tick);
 
     lv_display_t* display = lv_display_create(HORIZONTAL_RES, VERTICAL_RES);
+    if (display == NULL)
+    {
+        Serial.println("fucky lvgl");
+        exit(-1);
+    }
+    else
+    {
+        Serial.println("LVGL OK");
+    }
     lv_display_set_flush_cb(display, display_flush);
     lv_display_set_buffers(
         display, 
         draw_buffer1, 
-        draw_buffer2, 
+        NULL, 
         sizeof(draw_buffer1), 
         LV_DISPLAY_RENDER_MODE_PARTIAL);
     
 
-    ui_init();
+    //ui_init();
 
+    Serial.println("Setup Complete");
 }
 
 void loop()
@@ -260,6 +277,6 @@ void loop()
 
     do_fucking_everything_related_to_brake_bias();
     lv_timer_handler();
-    ui_tick         ();
+    //ui_tick         ();
     delay           (1);
 }
