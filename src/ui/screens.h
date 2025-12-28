@@ -1,7 +1,7 @@
 #ifndef EEZ_LVGL_UI_SCREENS_H
 #define EEZ_LVGL_UI_SCREENS_H
 
-#include <../../lib/lvgl/lvgl.h>
+#include <../../lvgl/lvgl.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,12 +9,6 @@ extern "C" {
 
 typedef struct _objects_t {
     lv_obj_t *main;
-    lv_obj_t *obj0;
-    lv_obj_t *obj1;
-    lv_obj_t *obj2;
-    lv_obj_t *obj3;
-    lv_obj_t *obj4;
-    lv_obj_t *obj5;
 } objects_t;
 
 extern objects_t objects;

@@ -15,7 +15,7 @@ extern "C" {
  *********************/
 #include "../lv_conf_internal.h"
 #include "lv_log.h"
-#include "../stdlib/lv_mem.h"
+#include "lv_mem.h"
 #include LV_ASSERT_HANDLER_INCLUDE
 
 /*********************
@@ -30,8 +30,6 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 
-LV_NORETURN void lv_assert_handler(void);
-
 /**********************
  *      MACROS
  **********************/
@@ -40,7 +38,7 @@ LV_NORETURN void lv_assert_handler(void);
     do {                                                       \
         if(!(expr)) {                                          \
             LV_LOG_ERROR("Asserted at expression: %s", #expr); \
-            lv_assert_handler();                               \
+            LV_ASSERT_HANDLER                                  \
         }                                                      \
     } while(0)
 
@@ -48,16 +46,8 @@ LV_NORETURN void lv_assert_handler(void);
     do {                                                                 \
         if(!(expr)) {                                                    \
             LV_LOG_ERROR("Asserted at expression: %s (%s)", #expr, msg); \
-            lv_assert_handler();                                         \
+            LV_ASSERT_HANDLER                                            \
         }                                                                \
-    } while(0)
-
-#define LV_ASSERT_FORMAT_MSG(expr, format, ...)                                         \
-    do {                                                                                \
-        if(!(expr)) {                                                                   \
-            LV_LOG_ERROR("Asserted at expression: %s " format , #expr, __VA_ARGS__);    \
-            lv_assert_handler();                                                        \
-        }                                                                               \
     } while(0)
 
 /*-----------------
@@ -77,7 +67,7 @@ LV_NORETURN void lv_assert_handler(void);
 #endif
 
 #if LV_USE_ASSERT_MEM_INTEGRITY
-#   define LV_ASSERT_MEM_INTEGRITY() LV_ASSERT_MSG(lv_mem_test() == LV_RESULT_OK, "Memory integrity error");
+#   define LV_ASSERT_MEM_INTEGRITY() LV_ASSERT_MSG(lv_mem_test() == LV_RES_OK, "Memory integrity error");
 #else
 #   define LV_ASSERT_MEM_INTEGRITY()
 #endif
