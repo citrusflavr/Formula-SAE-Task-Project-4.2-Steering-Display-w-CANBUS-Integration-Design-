@@ -10,6 +10,7 @@
 
 
 #include <string.h>
+#include <ctype.h>
 
 objects_t objects;
 lv_obj_t *tick_value_change_obj;
@@ -311,12 +312,30 @@ void tick_screen_main() {
     static char mph_buffer [10];
 
     {
-        snprintf(
-            gear_buffer,
-            sizeof(gear_buffer),
-            "%d",
-            get_var_gear()
-        );
+        int gear_val = get_var_gear();
+        if(
+            gear_val >= 0 &&
+            gear_val <= 255 &&
+            isalpha((unsigned char)gear_val)
+        )
+        {
+            snprintf(
+                gear_buffer,
+                sizeof(gear_buffer),
+                "%c",
+                (char)get_var_gear()
+            );
+        }
+        else
+        {
+            snprintf(
+                gear_buffer,
+                sizeof(gear_buffer),
+                "%d",
+                get_var_gear()
+            ); 
+        }
+
 
         const char *cur_val = lv_label_get_text(objects.label_gear);
         if (strcmp(gear_buffer, cur_val) != 0) {

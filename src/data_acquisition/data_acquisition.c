@@ -5,7 +5,7 @@
 
 int32_t mph                = 0;
 int32_t rpm                = 0;
-int32_t gear               = 0;  // NOTE: CAN BUS message for gear is actually a signed 4 bit message
+int32_t gear               = 'P';  // NOTE: CAN BUS message for gear is actually a signed 4 bit message
 int32_t coolant_temp       = 0;
 char   brake_bias_front[100]    = {0};     
 char   brake_bias_rear [100]    = {0};
