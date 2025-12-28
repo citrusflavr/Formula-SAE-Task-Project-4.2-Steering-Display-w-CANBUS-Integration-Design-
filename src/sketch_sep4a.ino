@@ -86,7 +86,7 @@ static uint32_t tick(void)
 }
 
 
-/* void do_fucking_everything_except_brake_bias(twai_message_t message)
+void do_fucking_everything_except_brake_bias(twai_message_t message)
 {
     if (message.rtr || message.extd)
         return;
@@ -175,7 +175,7 @@ void do_fucking_everything_related_to_brake_bias()
 
     return;
 }
- */
+
 void hang_program()
 {
     Serial.print("Press ENTER to continue: ");
@@ -300,7 +300,7 @@ void loop()
     if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK)
     {
         Serial.println("Received a message");
-        //do_fucking_everything_except_brake_bias(message);
+       // do_fucking_everything_except_brake_bias(message);
     }
 #if DEBUG
     else

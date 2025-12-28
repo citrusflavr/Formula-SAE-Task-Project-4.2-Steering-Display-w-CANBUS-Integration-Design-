@@ -9,6 +9,19 @@ extern "C" {
 
 typedef struct _objects_t {
     lv_obj_t *main;
+    lv_obj_t *label_rpm;
+    lv_obj_t *container_gear;
+    lv_obj_t *text_gear;
+    lv_obj_t *label_gear;
+    lv_obj_t *text_rpm;
+    lv_obj_t *label_mph;
+    lv_obj_t *label_coolant_temp;
+    lv_obj_t *coolant_temp;
+    lv_obj_t *label_coolant_temp_unit;
+    lv_obj_t *mph;
+    lv_obj_t *label_brake_bias;
+    lv_obj_t *brake_bias_front;
+    lv_obj_t *brake_bias_rear;
 } objects_t;
 
 extern objects_t objects;

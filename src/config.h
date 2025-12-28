@@ -24,4 +24,4 @@ inline void set_display_width(void)
 
 
 // LVGL
-#define FLUSH_BUFFER_LINES 20
+#define FLUSH_BUFFER_LINES 40
