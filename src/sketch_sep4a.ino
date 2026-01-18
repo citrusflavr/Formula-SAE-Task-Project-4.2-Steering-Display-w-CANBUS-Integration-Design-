@@ -12,7 +12,8 @@
 // Voltage Divider Ratio
 #define DIVIDER_RATIO (5.6f / (5.6f + 2.2f)) // 2.2k / 5.6k (bottom / (top + bottom))
 
-#define DEBUG true
+#define DEBUG false 
+#define USE_DMA 
 
 Ticker ticker;
 
@@ -22,6 +23,15 @@ TFT_eSPI tft = TFT_eSPI();
     // wtf is this?? this is fucking garbage. change this IMMEDIATELY after this shit actually works.
 int DISPLAY_W = 0;
 int DISPLAY_H = 0;
+
+
+// The buffers are dynamically allocated in setup() in the LVGL init section
+#ifdef USE_DMA
+static uint8_t* dma_buffer_pointer;
+static bool     dma_buffer_select = 0;
+
+static lv_disp_drv_t* disp_drv_ref = NULL;
+#endif
 
 
 #if LV_USE_LOG
@@ -59,6 +69,11 @@ void display_flush(
     Serial.print("Flush Height: ");
     Serial.println(height);
 #endif
+
+#ifdef USE_DMA
+    disp_drv_ref = display;
+#endif
+
     tft.startWrite();
 
     tft.setAddrWindow(
@@ -67,16 +82,25 @@ void display_flush(
         width,
         height
     );
-
+#ifdef USE_DMA
+    tft.pushPixelsDMA(
+        (uint16_t*)color_p,
+        width * height
+    );
+#else
     tft.pushPixels(
         (uint16_t*)color_p,
         width * height
     );
+#endif
 
+#ifdef USE_DMA
+    return;
+#else
     tft.endWrite();
-    
     lv_disp_flush_ready(display);
     return;
+#endif
 }
 
 
@@ -84,6 +108,18 @@ static uint32_t tick(void)
 {
     return millis();
 }
+
+
+#ifdef USE_DMA
+static void check_dma_finished(lv_disp_drv_t* display)
+{
+    if(!tft.dmaBusy())
+    {
+        tft.endWrite();
+        lv_disp_flush_ready(display);
+    }
+}
+#endif
 
 
 void do_fucking_everything_except_brake_bias(twai_message_t message)
@@ -239,6 +275,9 @@ void setup()
 
     // tft_espi init shit
     tft.init();
+#ifdef USE_DMA
+    tft.initDMA();
+#endif
     set_display_height();
     set_display_width ();
     tft.setRotation (LANDSCAPE_MODE);
@@ -251,22 +290,38 @@ void setup()
     lv_log_register_print_cb(lv_log_callback);
 #endif
 
-    static lv_color_t* draw_buffer;
-    draw_buffer = (lv_color_t*)heap_caps_malloc(
+   static lv_color_t* draw_buffer_0;
+
+    draw_buffer_0 = (lv_color_t*)heap_caps_malloc(
         DISPLAY_W * FLUSH_BUFFER_LINES * sizeof(lv_color_t),
         MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL
     );
 
+#ifdef USE_DMA
+    static lv_color_t* draw_buffer_1;
+
+    draw_buffer_1 = (lv_color_t*)heap_caps_malloc(
+        DISPLAY_W * FLUSH_BUFFER_LINES * sizeof(lv_color_t),
+        MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL
+    );
+#endif
+
     static lv_disp_draw_buf_t display_draw_buffer;
     lv_disp_draw_buf_init(
         &display_draw_buffer,
-        draw_buffer,
+        draw_buffer_0,
+#ifdef USE_DMA
+        draw_buffer_1,
+#else
         NULL,
+#endif
         DISPLAY_W * FLUSH_BUFFER_LINES
     );
 
+
     static lv_disp_drv_t display_drv;
     lv_disp_drv_init(&display_drv);
+
     display_drv.hor_res  = tft.width();
     display_drv.ver_res  = tft.height();
     display_drv.flush_cb = display_flush;
@@ -285,6 +340,7 @@ void setup()
     Serial.print("LV MEM SIZE: ");
     Serial.println(LV_MEM_SIZE);
 #endif
+
 
     ticker.attach_ms(1, lvgl_tick);
     ui_init();
@@ -311,6 +367,7 @@ void loop()
 
     //do_fucking_everything_related_to_brake_bias();
     lv_timer_handler();
+    check_dma_finished(disp_drv_ref);
     ui_tick         ();
     delay           (1);
 }
